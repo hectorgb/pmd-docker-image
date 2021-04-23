@@ -14,6 +14,6 @@ WORKDIR /pmd
 
 USER nobody
 
-ENTRYPOINT ["./bin/run.sh", "pmd"]
+ENTRYPOINT ["./bin/run.sh"]
 
 ## push to build
