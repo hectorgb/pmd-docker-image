@@ -1,17 +1,23 @@
-FROM openjdk:13-alpine
-LABEL author="hectorgonzalezbarata@gmail.com"
+ 
+FROM openjdk:8-alpine
 
-ARG VERSION=6.33.0
+ARG PMD_VERSION=${PMD_VERSION:-6.30.0}
 
-RUN apk add bash curl unzip
+RUN apk add --update --no-cache wget unzip
+RUN mkdir -p /opt
 
-RUN curl -L -o pmd-bin-${VERSION}.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F${VERSION}/pmd-bin-${VERSION}.zip && \
-        unzip pmd-bin-${VERSION}.zip && \
-        rm pmd-bin-${VERSION}.zip
+RUN cd /opt \
+      && wget -nc -O pmd.zip https://github.com/pmd/pmd/releases/download/pmd_releases/${PMD_VERSION}/pmd-bin-${PMD_VERSION}.zip \
+      && unzip pmd.zip \
+      && rm -f pmd.zip \
+      && mv pmd-bin-${PMD_VERSION} pmd
 
-RUN mv /pmd-bin-${VERSION} /pmd
-WORKDIR /pmd
+COPY pmd /usr/bin/pmd
+COPY cpd /usr/bin/cpd
+RUN chmod +x /usr/bin/pmd /usr/bin/cpd
 
-USER nobody
+RUN mkdir /src
+VOLUME /src
+WORKDIR /src
 
-ENTRYPOINT ["./bin/run.sh"]
+CMD ["pmd"]
